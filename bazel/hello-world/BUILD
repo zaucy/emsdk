@@ -14,10 +14,18 @@ cc_binary(
 wasm_cc_binary(
     name = "hello-world-wasm",
     cc_target = ":hello-world",
+    outputs = [
+        "hello-world-wasm.wasm",
+        "hello-world-wasm.js",
+    ],
 )
 
 wasm_cc_binary(
     name = "hello-world-wasm-simd",
     cc_target = ":hello-world-simd",
     simd = True,
+    outputs = [
+        "hello-world-wasm-simd.wasm",
+        "hello-world-wasm-simd.js",
+    ],
 )
