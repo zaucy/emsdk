@@ -432,6 +432,10 @@ def _impl(ctx):
             name = "wasm_warnings_as_errors",
             enabled = True,
         ),
+        feature(
+            name = "wasm_error_on_undefined_symbols",
+            enabled = True,
+        ),
 
         # ASan and UBSan. See also:
         # https://emscripten.org/docs/debugging/Sanitizers.html
@@ -517,7 +521,7 @@ def _impl(ctx):
         # Language Features
         flag_set(
             actions = all_cpp_compile_actions,
-            flags = ["-std=gnu++17", "-nostdinc", "-nostdinc++"],
+            flags = ["-std=c++20", "-nostdinc", "-nostdinc++"],
         ),
 
         # Emscripten-specific settings:
@@ -556,6 +560,11 @@ def _impl(ctx):
             actions = all_link_actions,
             flags = ["--oformat=js"],
             features = ["output_format_js"],
+        ),
+        flag_set(
+            actions = all_link_actions,
+            flags = ["-s", "ERROR_ON_UNDEFINED_SYMBOLS=0"],
+            not_features = ["wasm_error_on_undefined_symbols"],
         ),
 
         # Opt
