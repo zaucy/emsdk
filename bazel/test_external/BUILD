@@ -63,8 +63,8 @@ wasm_cc_binary(
     name = "hello-embind-wasm",
     cc_target = ":hello-embind",
     outputs = [
-        "hello-embind-wasm.wasm",
-        "hello-embind-wasm.js",
+        "hello-embind.wasm",
+        "hello-embind.js",
     ],
 )
 

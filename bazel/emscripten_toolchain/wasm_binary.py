@@ -14,7 +14,6 @@ WebAssembly binary into a larger web application.
 import argparse
 import os
 import tarfile
-import sys
 
 def main():
   parser = argparse.ArgumentParser()
@@ -26,6 +25,20 @@ def main():
   args.outputs = args.outputs.split(",")
 
   tar = tarfile.open(args.archive)
+
+  for member in tar.getmembers():
+    extname = '.' + member.name.split('.', 1)[1]
+    for idx, output in enumerate(args.outputs):
+      if output.endswith(extname):
+        member_file = tar.extractfile(member)
+        with open(output, "wb") as output_file:
+          output_file.write(member_file.read())
+        args.outputs.pop(idx)
+        break
+
+  for output in args.outputs:
+    extname = '.' + output.split('.', 1)[1]
+    print("[ERROR] Archive does not contain file with extname: %s" % extname)
 
   for member in tar.getmembers():
     extname = '.' + member.name.split('.', maxsplit=1)[1]
