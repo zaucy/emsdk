@@ -436,6 +436,18 @@ def _impl(ctx):
             name = "wasm_error_on_undefined_symbols",
             enabled = True,
         ),
+        feature(
+            name = "wasm_standalone",
+            enabled = False,
+        ),
+        feature(
+            name = "wasm_side_module",
+            enabled = False,
+        ),
+        feature(
+            name = "wasm_no_entry",
+            enabled = False,
+        ),
 
         # ASan and UBSan. See also:
         # https://emscripten.org/docs/debugging/Sanitizers.html
@@ -565,6 +577,21 @@ def _impl(ctx):
             actions = all_link_actions,
             flags = ["-s", "ERROR_ON_UNDEFINED_SYMBOLS=0"],
             not_features = ["wasm_error_on_undefined_symbols"],
+        ),
+        flag_set(
+            actions = all_link_actions,
+            flags = ["-s", "STANDALONE_WASM"],
+            features = ["wasm_standalone"],
+        ),
+        flag_set(
+            actions = all_link_actions,
+            flags = ["-s", "SIDE_MODULE=1"],
+            features = ["wasm_side_module"],
+        ),
+        flag_set(
+            actions = all_link_actions,
+            flags = ["--no-entry"],
+            features = ["wasm_no_entry"],
         ),
 
         # Opt
