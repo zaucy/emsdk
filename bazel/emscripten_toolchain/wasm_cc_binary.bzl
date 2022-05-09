@@ -25,6 +25,9 @@ def _wasm_transition_impl(settings, attr):
     if attr.simd:
         features.append("wasm_simd")
 
+    if len(attr.exported_functions) > 0:
+        linkopts.append("-sEXPORTED_FUNCTIONS=" + ",".join(attr.exported_functions))
+
     return {
         "//command_line_option:features": features,
         "//command_line_option:dynamic_mode": "off",
@@ -120,6 +123,11 @@ wasm_cc_binary = rule(
         "outputs": attr.output_list(
             allow_empty = False,
             mandatory = True,
+        ),
+        "exported_functions": attr.string_list(
+            default = [],
+            allow_empty = True,
+            mandatory = False,
         ),
         "_allowlist_function_transition": attr.label(
             default = "@bazel_tools//tools/allowlists/function_transition_allowlist",
