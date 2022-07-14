@@ -1,9 +1,93 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
-load("@build_bazel_rules_nodejs//:index.bzl", "npm_install", "node_repositories")
+load("@build_bazel_rules_nodejs//:index.bzl", "node_repositories", "npm_install")
 load(":revisions.bzl", "EMSCRIPTEN_TAGS")
 
 def _parse_version(v):
     return [int(u) for u in v.split(".")]
+
+BUILD_FILE_CONTENT_TEMPLATE = """
+package(default_visibility = ['//visibility:public'])
+
+filegroup(
+    name = "includes",
+    srcs = glob([
+        "emscripten/cache/sysroot/include/c++/v1/**",
+        "emscripten/cache/sysroot/include/compat/**",
+        "emscripten/cache/sysroot/include/**",
+        "lib/clang/15.0.0/include/**",
+    ]),
+)
+
+filegroup(
+    name = "emcc_common",
+    srcs = [
+        "emscripten/emcc.py",
+        "emscripten/emscripten.py",
+        "emscripten/emscripten-version.txt",
+        "emscripten/cache/sysroot_install.stamp",
+        "emscripten/src/settings.js",
+        "emscripten/src/settings_internal.js",
+    ] + glob(
+        include = [
+            "emscripten/third_party/**",
+            "emscripten/tools/**",
+        ],
+        exclude = [
+            "**/__pycache__/**",
+        ],
+    ),
+)
+
+filegroup(
+    name = "compiler_files",
+    srcs = [
+        "bin/clang{bin_extension}",
+        "bin/clang++{bin_extension}",
+        ":emcc_common",
+        ":includes",
+    ],
+)
+
+filegroup(
+    name = "linker_files",
+    srcs = [
+        "bin/clang{bin_extension}",
+        "bin/llc{bin_extension}",
+        "bin/llvm-ar{bin_extension}",
+        "bin/llvm-nm{bin_extension}",
+        "bin/llvm-objcopy{bin_extension}",
+        "bin/wasm-emscripten-finalize{bin_extension}",
+        "bin/wasm-ld{bin_extension}",
+        "bin/wasm-opt{bin_extension}",
+        "bin/wasm-metadce{bin_extension}",
+        ":emcc_common",
+    ] + glob(
+        include = [
+            "emscripten/cache/sysroot/lib/**",
+            "emscripten/node_modules/**",
+            "emscripten/src/**",
+        ],
+    ),
+)
+
+filegroup(
+    name = "ar_files",
+    srcs = [
+        "bin/llvm-ar{bin_extension}",
+        "emscripten/emar.py",
+        "emscripten/emscripten-version.txt",
+        "emscripten/src/settings.js",
+        "emscripten/src/settings_internal.js",
+    ] + glob(
+        include = [
+            "emscripten/tools/**",
+        ],
+        exclude = [
+            "**/__pycache__/**",
+        ],
+    ),
+)
+"""
 
 def emscripten_deps(emscripten_version = "latest"):
     version = emscripten_version
@@ -36,7 +120,7 @@ def emscripten_deps(emscripten_version = "latest"):
             strip_prefix = "install",
             url = emscripten_url.format("linux", revision.hash, "", "tbz2"),
             sha256 = revision.sha_linux,
-            build_file = "@emsdk//emscripten_toolchain:emscripten.BUILD",
+            build_file_content = BUILD_FILE_CONTENT_TEMPLATE.format(bin_extension = ""),
             type = "tar.bz2",
         )
 
@@ -46,7 +130,7 @@ def emscripten_deps(emscripten_version = "latest"):
             strip_prefix = "install",
             url = emscripten_url.format("mac", revision.hash, "", "tbz2"),
             sha256 = revision.sha_mac,
-            build_file = "@emsdk//emscripten_toolchain:emscripten.BUILD",
+            build_file_content = BUILD_FILE_CONTENT_TEMPLATE.format(bin_extension = ""),
             type = "tar.bz2",
         )
 
@@ -56,7 +140,7 @@ def emscripten_deps(emscripten_version = "latest"):
             strip_prefix = "install",
             url = emscripten_url.format("mac", revision.hash, "-arm64", "tbz2"),
             sha256 = revision.sha_mac_arm64,
-            build_file = "@emsdk//emscripten_toolchain:emscripten.BUILD",
+            build_file_content = BUILD_FILE_CONTENT_TEMPLATE.format(bin_extension = ""),
             type = "tar.bz2",
         )
 
@@ -66,7 +150,7 @@ def emscripten_deps(emscripten_version = "latest"):
             strip_prefix = "install",
             url = emscripten_url.format("win", revision.hash, "", "zip"),
             sha256 = revision.sha_win,
-            build_file = "@emsdk//emscripten_toolchain:emscripten.BUILD",
+            build_file_content = BUILD_FILE_CONTENT_TEMPLATE.format(bin_extension = ".exe"),
             type = "zip",
         )
 
