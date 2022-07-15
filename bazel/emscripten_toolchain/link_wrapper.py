@@ -77,7 +77,7 @@ if oformat is not None:
   # Please don't do that.
   else:
     base_name = base_name_split[0]
-    os.rename(output_file, os.path.join(outdir, base_name + '.' + oformat))
+    os.replace(output_file, os.path.join(outdir, base_name + '.' + oformat))
 
 files = []
 extensions = [
