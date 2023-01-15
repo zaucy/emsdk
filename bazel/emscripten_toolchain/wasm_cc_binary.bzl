@@ -28,6 +28,9 @@ def _wasm_transition_impl(settings, attr):
     if len(attr.exported_functions) > 0:
         linkopts.append("-sEXPORTED_FUNCTIONS=" + ",".join(attr.exported_functions))
 
+    if attr.standalone:
+        features.append("wasm_standalone")
+
     return {
         "//command_line_option:features": features,
         "//command_line_option:dynamic_mode": "off",
@@ -87,6 +90,9 @@ _WASM_BINARY_COMMON_ATTRS = {
         default = [],
         allow_empty = True,
         mandatory = False,
+    ),
+    "standalone": attr.bool(
+        default = False,
     ),
     "_allowlist_function_transition": attr.label(
         default = "@bazel_tools//tools/allowlists/function_transition_allowlist",
@@ -163,7 +169,6 @@ def _wasm_cc_binary_legacy_impl(ctx):
     )
 
 _wasm_cc_binary = rule(
-    name = "wasm_cc_binary",
     implementation = _wasm_cc_binary_impl,
     attrs = dict(
         _WASM_BINARY_COMMON_ATTRS,
@@ -193,7 +198,6 @@ def _wasm_binary_legacy_outputs(name, cc_target):
     return outputs
 
 _wasm_cc_binary_legacy = rule(
-    name = "wasm_cc_binary",
     implementation = _wasm_cc_binary_legacy_impl,
     attrs = _WASM_BINARY_COMMON_ATTRS,
     outputs = _wasm_binary_legacy_outputs,

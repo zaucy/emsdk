@@ -14,7 +14,7 @@ filegroup(
         "emscripten/cache/sysroot/include/c++/v1/**",
         "emscripten/cache/sysroot/include/compat/**",
         "emscripten/cache/sysroot/include/**",
-        "lib/clang/15.0.0/include/**",
+        "lib/clang/16/include/**",
     ]),
 )
 
@@ -52,7 +52,6 @@ filegroup(
     name = "linker_files",
     srcs = [
         "bin/clang{bin_extension}",
-        "bin/llc{bin_extension}",
         "bin/llvm-ar{bin_extension}",
         "bin/llvm-nm{bin_extension}",
         "bin/llvm-objcopy{bin_extension}",
