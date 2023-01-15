@@ -437,10 +437,6 @@ def _impl(ctx):
             enabled = True,
         ),
         feature(
-            name = "wasm_standalone",
-            enabled = False,
-        ),
-        feature(
             name = "wasm_side_module",
             enabled = False,
         ),
