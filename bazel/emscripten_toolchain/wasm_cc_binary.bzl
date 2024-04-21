@@ -28,14 +28,16 @@ def _wasm_transition_impl(settings, attr):
     if len(attr.exported_functions) > 0:
         linkopts.append("-sEXPORTED_FUNCTIONS=" + ",".join(attr.exported_functions))
 
+    platform = "@emsdk//:platform_wasm"
     if attr.standalone:
+        platform = "@emsdk//:platform_wasi"
         features.append("wasm_standalone")
 
     return {
         "//command_line_option:features": features,
         "//command_line_option:dynamic_mode": "off",
         "//command_line_option:linkopt": linkopts,
-        "//command_line_option:platforms": ["@emsdk//:platform_wasm"],
+        "//command_line_option:platforms": [platform],
         "//command_line_option:custom_malloc": "@emsdk//emscripten_toolchain:malloc",
     }
 
